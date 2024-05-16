@@ -1,6 +1,0 @@
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: ${CLUSTER_NAME}-md-bgp
-data:
-    node-labels: cilium-bgp-peering="true"

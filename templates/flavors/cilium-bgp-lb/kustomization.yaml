@@ -5,34 +5,6 @@ resources:
   - machineDeployment.yaml
   - linodeMachineTemplate.yaml
   - kubeadmConfigTemplate.yaml
-  - kubeadmConfigTemplateConfig.yaml
-
-replacements:
-- source:
-    kind: KubeadmConfigTemplate
-    name: ${CLUSTER_NAME}-md-0
-    fieldPath: .spec
-  targets:
-  - select:
-      kind: KubeadmConfigTemplate
-      name: ${CLUSTER_NAME}-md-bgp
-    fieldPaths:
-      - .spec
-    options:
-      create: true
-- source:
-    kind: ConfigMap
-    name: ${CLUSTER_NAME}-md-bgp
-    fieldPath: .data.node-labels
-  targets:
-  - select:
-      kind: KubeadmConfigTemplate
-      name: ${CLUSTER_NAME}-md-bgp
-    fieldPaths:
-      - .spec.template.spec.joinConfiguration.nodeRegistration.kubeletExtraArgs.node-labels
-    options:
-      create: true
-
 patches:
   - target:
       kind: HelmChartProxy
@@ -54,16 +26,3 @@ patches:
             pullPolicy: IfNotPresent
           env:
             LINODE_URL: https://api.linode.com/v4beta
-
-  # FIXME: This seems to get called before replacements?
-  #
-  # Error: add operation does not apply: doc is missing path: /spec/template/spec/joinConfiguration/nodeRegistration/kubeletExtraArgs/node-labels: missing value
-  #
-  # See: https://kubectl.docs.kubernetes.io/references/kustomize/kustomization/#ordering
-  # - target:
-  #     kind: KubeadmConfigTemplate
-  #     name: .*-md-bgp
-  #   patch: |-
-  #     - op: add
-  #       path: /spec/template/spec/joinConfiguration/nodeRegistration/kubeletExtraArgs/node-labels
-  #       value: cilium-bgp-peering="true"
